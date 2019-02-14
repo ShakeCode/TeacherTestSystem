@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.spring.springboot.dao.master.AssessTeacherResultDao" >
+  <resultMap id="BaseResultMap" type="org.spring.springboot.domain.AssessTeacherResult" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="assess_type" property="assessType" jdbcType="VARCHAR" />
+    <result column="level" property="level" jdbcType="VARCHAR" />
+    <result column="avg_score" property="avgScore" jdbcType="VARCHAR" />
+    <result column="tea_name" property="teaName" jdbcType="VARCHAR" />
+    <result column="tea_no" property="teaNo" jdbcType="VARCHAR" />
+    <result column="collea_name" property="colleaName" jdbcType="VARCHAR" />
+    <result column="totall_score" property="totallScore" jdbcType="VARCHAR" />
+    <result column="access_count" property="accessCount" jdbcType="INTEGER" />
+    <result column="totall_access_count" property="totallAccessCount" jdbcType="INTEGER" />
+    <result column="totall_level" property="totallLevel" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, assess_type, level, avg_score, tea_name, tea_no, collea_name, totall_score, access_count, 
+    totall_access_count, totall_level
+  </sql>
+  
+  <!-- 查找所有老师的总评结果 -->
+  <select id="selectAllAssessResult" resultMap="BaseResultMap">
+  	SELECT * from assess_teacher_result a where  a.assess_type="总评" GROUP BY a.tea_no
+  </select>
+  
+  <delete id="deleteAllResult">
+  	delete  from assess_teacher_result
+  </delete>
+  
+  <select id="selectByTeaNo" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from assess_teacher_result
+    where tea_no = #{tea_no,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from assess_teacher_result
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="org.spring.springboot.domain.AssessTeacherResult" >
+    insert into assess_teacher_result (id, assess_type, level, 
+      avg_score, tea_name, tea_no, 
+      collea_name, totall_score, access_count, 
+      totall_access_count, totall_level)
+    values (#{id,jdbcType=INTEGER}, #{assessType,jdbcType=VARCHAR}, #{level,jdbcType=VARCHAR}, 
+      #{avgScore,jdbcType=VARCHAR}, #{teaName,jdbcType=VARCHAR}, #{teaNo,jdbcType=VARCHAR}, 
+      #{colleaName,jdbcType=VARCHAR}, #{totallScore,jdbcType=VARCHAR}, #{accessCount,jdbcType=INTEGER}, 
+      #{totallAccessCount,jdbcType=INTEGER}, #{totallLevel,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="org.spring.springboot.domain.AssessTeacherResult" >
+    insert into assess_teacher_result
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="assessType != null" >
+        assess_type,
+      </if>
+      <if test="level != null" >
+        level,
+      </if>
+      <if test="avgScore != null" >
+        avg_score,
+      </if>
+      <if test="teaName != null" >
+        tea_name,
+      </if>
+      <if test="teaNo != null" >
+        tea_no,
+      </if>
+      <if test="colleaName != null" >
+        collea_name,
+      </if>
+      <if test="totallScore != null" >
+        totall_score,
+      </if>
+      <if test="accessCount != null" >
+        access_count,
+      </if>
+      <if test="totallAccessCount != null" >
+        totall_access_count,
+      </if>
+      <if test="totallLevel != null" >
+        totall_level,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="assessType != null" >
+        #{assessType,jdbcType=VARCHAR},
+      </if>
+      <if test="level != null" >
+        #{level,jdbcType=VARCHAR},
+      </if>
+      <if test="avgScore != null" >
+        #{avgScore,jdbcType=VARCHAR},
+      </if>
+      <if test="teaName != null" >
+        #{teaName,jdbcType=VARCHAR},
+      </if>
+      <if test="teaNo != null" >
+        #{teaNo,jdbcType=VARCHAR},
+      </if>
+      <if test="colleaName != null" >
+        #{colleaName,jdbcType=VARCHAR},
+      </if>
+      <if test="totallScore != null" >
+        #{totallScore,jdbcType=VARCHAR},
+      </if>
+      <if test="accessCount != null" >
+        #{accessCount,jdbcType=INTEGER},
+      </if>
+      <if test="totallAccessCount != null" >
+        #{totallAccessCount,jdbcType=INTEGER},
+      </if>
+      <if test="totallLevel != null" >
+        #{totallLevel,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="org.spring.springboot.domain.AssessTeacherResult" >
+    update assess_teacher_result
+    <set >
+      <if test="assessType != null" >
+        assess_type = #{assessType,jdbcType=VARCHAR},
+      </if>
+      <if test="level != null" >
+        level = #{level,jdbcType=VARCHAR},
+      </if>
+      <if test="avgScore != null" >
+        avg_score = #{avgScore,jdbcType=VARCHAR},
+      </if>
+      <if test="teaName != null" >
+        tea_name = #{teaName,jdbcType=VARCHAR},
+      </if>
+      <if test="teaNo != null" >
+        tea_no = #{teaNo,jdbcType=VARCHAR},
+      </if>
+      <if test="colleaName != null" >
+        collea_name = #{colleaName,jdbcType=VARCHAR},
+      </if>
+      <if test="totallScore != null" >
+        totall_score = #{totallScore,jdbcType=VARCHAR},
+      </if>
+      <if test="accessCount != null" >
+        access_count = #{accessCount,jdbcType=INTEGER},
+      </if>
+      <if test="totallAccessCount != null" >
+        totall_access_count = #{totallAccessCount,jdbcType=INTEGER},
+      </if>
+      <if test="totallLevel != null" >
+        totall_level = #{totallLevel,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="org.spring.springboot.domain.AssessTeacherResult" >
+    update assess_teacher_result
+    set assess_type = #{assessType,jdbcType=VARCHAR},
+      level = #{level,jdbcType=VARCHAR},
+      avg_score = #{avgScore,jdbcType=VARCHAR},
+      tea_name = #{teaName,jdbcType=VARCHAR},
+      tea_no = #{teaNo,jdbcType=VARCHAR},
+      collea_name = #{colleaName,jdbcType=VARCHAR},
+      totall_score = #{totallScore,jdbcType=VARCHAR},
+      access_count = #{accessCount,jdbcType=INTEGER},
+      totall_access_count = #{totallAccessCount,jdbcType=INTEGER},
+      totall_level = #{totallLevel,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

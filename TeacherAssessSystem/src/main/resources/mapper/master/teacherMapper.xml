@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.spring.springboot.dao.master.TeacherDao">
+  <resultMap id="BaseResultMap" type="org.spring.springboot.domain.Teacher" >
+    <id column="tea_id" property="tea_id" jdbcType="INTEGER" />
+    <result column="tea_name" property="tea_name" jdbcType="VARCHAR" />
+    <result column="tea_no" property="tea_no" jdbcType="VARCHAR" />
+    <result column="cour_id" property="cour_id" jdbcType="INTEGER" />
+    <result column="passward" property="passward" jdbcType="VARCHAR" />
+    <result column="sex" property="sex" jdbcType="VARCHAR" />
+    <result column="role_id" property="role_id" jdbcType="VARCHAR" />
+    
+    <result column="leader_id" property="leader_id" jdbcType="INTEGER" />
+    <result column="colle_name" property="colle_name" jdbcType="VARCHAR" />
+    <result column="address" property="address" jdbcType="VARCHAR" />
+    <result column="old_colle" property="old_colle" jdbcType="VARCHAR" />
+    <result column="major" property="major" jdbcType="VARCHAR" />
+    <result column="birthday" property="birthday" jdbcType="TIMESTAMP" />
+    <result column="age" property="age" jdbcType="INTEGER" />
+    <result column="workTime" property="workTime" jdbcType="TIMESTAMP" />
+    <result column="idNo" property="idNo" jdbcType="VARCHAR" />
+    <result column="class_id" property="class_id" jdbcType="INTEGER" />
+    
+    <result column="cour_name" property="cour_name" jdbcType="VARCHAR"/> 
+    <result column="className" property="className" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <select id="selectTeacher" resultMap="BaseResultMap" parameterType="java.util.Map">
+    select * from teacher
+     <where>
+    	<if test="role_id">role_id =#{role_id}</if>
+    	<if test="tea_no">and tea_no =#{tea_no}</if>
+    	<if test="passward">and passward =#{passward}</if>
+    </where>
+  </select>
+  
+  <select id="selectTeaMessage" resultMap="BaseResultMap" parameterType="java.util.Map">
+  		 select a.*,b.class_name as className from teacher a left join class b on a.class_id = b.class_id
+     <where>
+    	<if test="tea_no">a.tea_no =#{tea_no}</if>
+    </where>
+  </select>
+  
+  <!-- 老师注册 -->
+  <insert id="insertTeacher" parameterType="java.util.Map">
+      insert into teacher (role_id,tea_no,passward) values (
+         #{role_id},
+    	 #{tea_no},
+    	#{passward}
+      )
+  </insert>
+  
+    <!-- 修改密码 -->
+  <update id="updateTeaPassward" parameterType="java.util.Map">
+    update teacher set passward =#{newPassward}
+    where tea_no =#{tea_no}
+  </update>
+  
+  <update id="updateTeacherMessage" parameterType="org.spring.springboot.domain.Teacher">
+  	update teacher 
+     <set>
+  	tea_name =#{tea_name},
+    tea_no =#{tea_no},
+    colle_name=#{colle_name},
+    address=#{address},
+    major=#{major},
+    old_colle=#{old_colle},
+    age=#{age},
+    sex=#{sex},
+    workTime=#{workTime},
+    IdNo=#{idNo},
+    old_colle=#{old_colle},
+    birthday=#{birthday}
+     </set>
+      where tea_no =#{tea_no}
+  </update>
+  
+    <!-- 批量插入老师信息 -->
+    <insert id="batchInsertTea" parameterType="java.util.List">
+  insert into teacher
+  (tea_name, tea_no, passward, sex,colle_name,address,old_colle,major,age)
+    values
+     <foreach collection ="list" item="tea" index= "index" separator =",">
+       (
+       #{tea.tea_name}, #{tea.tea_no},
+       #{tea.passward},#{tea.sex},
+       #{tea.colle_name},#{tea.address},
+       #{tea.old_colle},#{tea.major}, 
+       #{tea.age}
+       )
+   </foreach >
+  </insert>
+  
+  <select id="selectAllTeacher" resultMap="BaseResultMap">
+  select * from teacher
+  </select>
+  
+  <!-- 根据工号查找老师 -->
+  <select id="selectTeacherByNo" resultMap="BaseResultMap">
+  select * from teacher where tea_no =#{tea_no}
+  </select>
+  
+  
+  <!-- 查找学生需要评价的老师列表 -->
+   <select id="selectAccessTeacherList" resultMap="BaseResultMap">
+ SELECT t.*,c.cour_name as cour_name from teacher t LEFT JOIN student s on s.class_id=t.class_id LEFT JOIN course c on t.cour_id = c.cour_id
+WHERE s.stu_no =#{stu_no} and t.tea_id not in (SELECT tea_id from question_answer q where t.tea_id = q.tea_id and q.stu_id = s.stu_id )
+  </select>
+  
+  <!-- 查找老师同行评价列表 -->
+  <select id="selectAccessSameFiledTeacherList" parameterType="java.util.Map" resultMap="BaseResultMap">
+	 select t.* from teacher t  where t.tea_id not in
+	(SELECT s.tea_id  from question_answer s where s.tea_an_id =#{tea_id})  
+	and  t.tea_no !=#{tea_no} and cour_id =#{cour_id}
+  </select>
+  
+  <!-- 查找老师同行评价人数 -->
+  <select id="selectAccessSameFiledTeacherCount" parameterType="java.util.Map" resultType="java.lang.Integer">
+	 select count(1) from teacher t  where t.tea_id not in
+	(SELECT s.tea_id  from question_answer s where s.tea_an_id =#{tea_id})  
+	and  t.tea_no !=#{tea_no} and cour_id =#{cour_id}
+  </select>
+  
+  <!-- 查找领导需要评价的老师列表 -->
+  <select id="selectLeaderAssessTeacherList" resultMap="BaseResultMap" parameterType="java.util.Map">
+SELECT t.*,c.cour_name as cour_name from teacher t LEFT JOIN course c on c.cour_id=t.cour_id LEFT JOIN leader s on s.id = t.leader_id where t.tea_id not in
+(select q.tea_id from question_answer q where q.lea_id=#{lea_id})
+  </select>
+  
+  <!-- 查找领导需要评价的老师人数 -->
+  <select id="selectLeaderAssessTeacherCount" parameterType="java.util.Map" resultType="java.lang.Integer">
+  	SELECT count(1) from teacher t LEFT JOIN leader s on s.id = t.leader_id where t.tea_id not in
+(select q.tea_id from question_answer q where q.lea_id=#{lea_id})
+  </select>
+   
+</mapper>

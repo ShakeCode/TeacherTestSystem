@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.spring.springboot.dao.master.LeaderDao">
+  <resultMap id="BaseResultMap" type="org.spring.springboot.domain.Leader" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="lead_name" property="lead_name" jdbcType="VARCHAR" />
+    <result column="lead_no" property="lead_no" jdbcType="VARCHAR" />
+    <result column="lead_passward" property="lead_passward" jdbcType="VARCHAR" />
+    <result column="sex" property="sex" jdbcType="VARCHAR" />
+    <result column="role_id" property="role_id" jdbcType="VARCHAR" />
+    <result column="lead_job" property="lead_job" jdbcType="VARCHAR" />
+  </resultMap>
+   
+   <select id="selectLeader" resultMap="BaseResultMap" parameterType="java.util.Map">
+   select * from leader 
+     <where>
+    	<if test="role_id">role_id =#{role_id}</if>
+    	<if test="lead_no">and lead_no =#{lead_no}</if>
+    	<if test="lead_passward">and lead_passward =#{lead_passward}</if>
+    </where>
+   </select>
+   
+   <!-- 领导注册 -->
+  <insert id="insertLeader" parameterType="java.util.Map">
+    insert into leader(role_id,lead_no,lead_passward)  values (
+         #{role_id},
+    	 #{lead_no},
+    	#{lead_passward}
+      )
+  </insert>
+  
+    <!-- 修改密码 -->
+  <update id="updateLeaPassward" parameterType="java.util.Map">
+    update leader set lead_passward =#{newPassward}
+    where lead_no =#{lead_no}
+  </update>
+</mapper>

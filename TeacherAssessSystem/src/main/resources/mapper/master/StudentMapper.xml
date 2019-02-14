@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.spring.springboot.dao.master.StudentDao">
+ <resultMap id="BaseResultMap" type="org.spring.springboot.domain.Student" >
+    <id column="stu_id" property="stu_id" jdbcType="INTEGER" />
+    <result column="stu_name" property="stu_name" jdbcType="VARCHAR" />
+    <result column="stu_no" property="stu_no" jdbcType="VARCHAR" />
+    <result column="passward" property="passward" jdbcType="VARCHAR" />
+    <result column="sex" property="sex" jdbcType="VARCHAR" />
+    <result column="tea_id" property="tea_id" jdbcType="INTEGER" />
+    <result column="role_id" property="role_id" jdbcType="VARCHAR" />
+    <result column="class_id" property="class_id" jdbcType="INTEGER" />
+    <result column="colle_name" property="colle_name" jdbcType="VARCHAR" />
+    <result column="address" property="address" jdbcType="VARCHAR" />
+    <result column="major" property="major" jdbcType="VARCHAR" />
+    <result column="age" property="age" jdbcType="INTEGER" />
+    <result column="enterTime" property="enterTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  
+   <resultMap id="BaseResultMap1" type="org.spring.springboot.domain.Student" >
+    <id column="stu_id" property="stu_id" jdbcType="INTEGER" />
+    <result column="stu_name" property="stu_name" jdbcType="VARCHAR" />
+    <result column="stu_no" property="stu_no" jdbcType="VARCHAR" />
+    <result column="passward" property="passward" jdbcType="VARCHAR" />
+    <result column="sex" property="sex" jdbcType="VARCHAR" />
+    <result column="tea_id" property="tea_id" jdbcType="INTEGER" />
+    <result column="role_id" property="role_id" jdbcType="VARCHAR" />
+    <result column="class_id" property="class_id" jdbcType="INTEGER" />
+    <result column="colle_name" property="colle_name" jdbcType="VARCHAR" />
+    <result column="address" property="address" jdbcType="VARCHAR" />
+    <result column="major" property="major" jdbcType="VARCHAR" />
+    <result column="age" property="age" jdbcType="INTEGER" />
+    <result column="enterTime" property="enterTime" jdbcType="TIMESTAMP" />
+    
+    <!-- 扩展字段 -->
+    <result column="class_name" property="class_name" jdbcType="VARCHAR" />
+    
+  </resultMap>
+  
+  <!-- 查找所有学生信息 -->
+  <select id="findAllStudent" resultType="java.lang.String">
+   select * from student
+  </select>
+  
+  <select id="selectStudent" resultMap="BaseResultMap" parameterType="java.util.Map">
+    select * from student 
+    <where>
+    	<if test="role_id">role_id =#{role_id}</if>
+    	<if test="stu_no">and stu_no =#{stu_no}</if>
+    	<if test="passward">and passward =#{passward}</if>
+    </where>
+  </select>
+  
+  <select id="selectStudentMessage" resultMap="BaseResultMap1" parameterType="java.util.Map">
+    SELECT a.*,b.class_name FROM student a LEFT JOIN class b on 
+    a.class_id = b.class_id 
+    <where>
+    	<if test="stu_no">and a.stu_no =#{stu_no}</if>
+    </where>
+  </select>
+  
+   <!-- 学生注册 -->
+  <insert id="insertStudent" parameterType="java.util.Map">
+  insert  into student (role_id,stu_no,passward) values (
+         #{role_id},
+    	 #{stu_no},
+    	#{passward}
+      )
+  </insert>
+  
+  <!-- 修改密码 -->
+  <update id="updateStuPassward" parameterType="java.util.Map">
+    update student set passward =#{newPassward}
+    where stu_no =#{stu_no}
+  </update>
+  
+  <update id="updateStudentMessage" parameterType="org.spring.springboot.domain.Student">
+    update student set stu_name =#{stu_name},
+    stu_no =#{stu_no},sex =#{sex},
+    colle_name=#{colle_name},
+    address=#{address},
+    major=#{major},
+    enterTime=#{enterTime},
+    age=#{age}
+    where stu_no =#{stu_no}
+  </update>
+  
+  <insert id="batchInsertStu" parameterType="java.util.List">
+  insert into student
+  (stu_name, stu_no, passward, colle_name,enterTime,major,class_id)
+    values
+     <foreach collection ="list" item="stu" index= "index" separator =",">
+       (
+       #{stu.stu_name}, #{stu.stu_no},
+       #{stu.passward},
+       #{stu.colle_name},
+       #{stu.enterTime},
+       #{stu.major}, #{stu.class_id}
+       )
+   </foreach>
+  </insert>
+  
+  <!-- 查询需评价老师的人数 -->
+  <select id="selectAccessTeacherCount" resultType="java.lang.Integer">
+  SELECT count(1) from teacher t LEFT JOIN student s on s.class_id=t.class_id
+WHERE s.stu_no =#{stu_no} and t.tea_id not in (SELECT tea_id from question_answer q where t.tea_id = q.tea_id and q.stu_id = s.stu_id )
+  </select>
+  
+  <!-- 根据学号查询学生 -->
+  <select id="selectStudentByNo" resultMap="BaseResultMap" >
+  select * from student where stu_no =#{stu_no}
+  </select>
+</mapper>

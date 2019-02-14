@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.spring.springboot.dao.master.QuestionAnswerDao" >
+  <resultMap id="BaseResultMap" type="org.spring.springboot.domain.QuestionAnswer" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="tea_id" property="teaId" jdbcType="INTEGER" />
+    <result column="stu_id" property="stuId" jdbcType="INTEGER" />
+    <result column="tea_an_id" property="teaAnId" jdbcType="INTEGER" />
+    <result column="lea_id" property="leaId" jdbcType="INTEGER" />
+    <result column="answer" property="answer" jdbcType="VARCHAR" />
+    <result column="advisement" property="advisement" jdbcType="VARCHAR" />
+    
+    <result column="stuName" property="stuName" jdbcType="VARCHAR" />
+    <result column="teaName" property="teaName" jdbcType="VARCHAR" />
+    <result column="leaName" property="leaName" jdbcType="VARCHAR" />
+    
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    id, tea_id, stu_id, tea_an_id, lea_id, answer, advisement
+  </sql>
+  
+  <!-- 查找学生评价的列表 -->
+  <select id="selectByTeaId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+   select q.*,s.stu_name as stuName from question_answer q LEFT JOIN student s on s.stu_id = q.stu_id 
+   where q.tea_id =#{tea_id,jdbcType=INTEGER} and q.stu_id is not null
+  </select>
+  
+  <!-- 查找同行评价的老师列表 -->
+  <select id="selectSameFiledTeacherInfoList" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+  SELECT u.*,t.tea_name as teaName from question_answer u LEFT JOIN teacher t on u.tea_an_id = t.tea_id 
+where u.tea_id =#{tea_id,jdbcType=INTEGER} and u.tea_an_id is NOT  NULL
+  </select>
+  
+  <!-- 查找领导评价的列表 -->
+  <select id="selectLeaderAccessInfoList" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+  SELECT q.*,d.lead_name as leaName from question_answer q LEFT JOIN leader d on 
+q.lea_id = d.id where q.tea_id =#{tea_id,jdbcType=INTEGER} and q.lea_id is not NULL
+  </select>
+  
+  <!-- 计算评价总分-->
+  <select id="selectAsscessAllPeopleAnswerList" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+  	SELECT q.* from question_answer q WHERE q.tea_id=#{tea_id} and q.tea_an_id is not null
+UNION 
+SELECT q.* from question_answer q WHERE q.tea_id=#{tea_id} and q.stu_id is not null
+UNION
+SELECT q.* from question_answer q where q.tea_id=#{tea_id} and q.lea_id is not NULL
+  </select>
+  
+  <!-- 计算评价总人数 -->
+  <select id="selectAsscessAllPeopleAnswerCount" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+  	SELECT COUNT(1) from question_answer q where (q.tea_id =#{tea_id} and q.lea_id is not NULL) OR
+(q.tea_id=#{tea_id} and q.tea_an_id is not null) or (q.tea_id=#{tea_id} and  q.stu_id is not NULL )
+  </select>
+  
+  <!-- 专家评价人数 -->
+  <select id="selectCountAssessByLeader" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+SELECT COUNT(1) from question_answer q WHERE q.tea_id=#{tea_id} and q.lea_id is not NULL
+  </select>
+  
+  <!-- 专家评价列表-->
+  <select id="selectAssessListByLeader" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+SELECT q.* from question_answer q WHERE q.tea_id=#{tea_id} and q.lea_id is not NULL
+  </select>
+  
+  <!-- 同行评价人数 -->
+  <select id="selectAssessCountBySameFiledTeacher" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+SELECT COUNT(1) from question_answer q WHERE q.tea_id=#{tea_id} and q.tea_an_id is not null
+  </select> 
+ 
+  <!-- 同行评价列表 -->
+  <select id="selectAssessListBySameFiledTeacher" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+SELECT q.* from question_answer q WHERE q.tea_id=#{tea_id} and q.tea_an_id is not null
+  </select>  
+  
+    <!-- 学生评价人数 -->
+  <select id="selectAssessCountBySameFiledStudent" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+SELECT COUNT(1) from question_answer q  where q.tea_id=#{tea_id} and  q.stu_id is not NULL 
+  </select> 
+ 
+  <!-- 学生评价列表 -->
+  <select id="selectAssessListBySameFiledStudent" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+SELECT q.* from question_answer q where q.tea_id=#{tea_id} and  q.stu_id is not NULL 
+  </select>  
+  
+  <!-- 查找某个老师是否被评价 -->
+   <select id="isExistInAssessQuestion" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+   select q.* from question_answer q where q.tea_id=#{tea_id} 
+   </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from question_answer
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  
+  <insert id="insertSelective" parameterType="org.spring.springboot.domain.QuestionAnswer" >
+    insert into question_answer
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="teaId != null" >
+        tea_id,
+      </if>
+      <if test="stuId != null" >
+        stu_id,
+      </if>
+      <if test="teaAnId != null" >
+        tea_an_id,
+      </if>
+      <if test="leaId != null" >
+        lea_id,
+      </if>
+      <if test="answer != null" >
+        answer,
+      </if>
+      <if test="advisement != null" >
+        advisement,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="teaId != null" >
+        #{teaId,jdbcType=INTEGER},
+      </if>
+      <if test="stuId != null" >
+        #{stuId,jdbcType=INTEGER},
+      </if>
+      <if test="teaAnId != null" >
+        #{teaAnId,jdbcType=INTEGER},
+      </if>
+      <if test="leaId != null" >
+        #{leaId,jdbcType=INTEGER},
+      </if>
+      <if test="answer != null" >
+        #{answer,jdbcType=VARCHAR},
+      </if>
+      <if test="advisement != null" >
+        #{advisement,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  
+  <update id="updateByPrimaryKeySelective" parameterType="org.spring.springboot.domain.QuestionAnswer" >
+    update question_answer
+    <set >
+      <if test="teaId != null" >
+        tea_id = #{teaId,jdbcType=INTEGER},
+      </if>
+      <if test="stuId != null" >
+        stu_id = #{stuId,jdbcType=INTEGER},
+      </if>
+      <if test="teaAnId != null" >
+        tea_an_id = #{teaAnId,jdbcType=INTEGER},
+      </if>
+      <if test="leaId != null" >
+        lea_id = #{leaId,jdbcType=INTEGER},
+      </if>
+      <if test="answer != null" >
+        answer = #{answer,jdbcType=VARCHAR},
+      </if>
+      <if test="advisement != null" >
+        advisement = #{advisement,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="org.spring.springboot.domain.QuestionAnswer" >
+    update question_answer
+    set tea_id = #{teaId,jdbcType=INTEGER},
+      stu_id = #{stuId,jdbcType=INTEGER},
+      tea_an_id = #{teaAnId,jdbcType=INTEGER},
+      lea_id = #{leaId,jdbcType=INTEGER},
+      answer = #{answer,jdbcType=VARCHAR},
+      advisement = #{advisement,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>
